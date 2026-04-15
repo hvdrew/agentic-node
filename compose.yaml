@@ -1,0 +1,14 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      OLLAMA_API_BASE: http://host.docker.internal:11434
+    volumes:
+      - .:/app
+      - /app/node_modules
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    stdin_open: true   # docker run -i
+    tty: true          # docker run -t

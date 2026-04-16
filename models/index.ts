@@ -1,7 +1,9 @@
 import { type LanguageModelV3Middleware } from "@ai-sdk/provider"
-import { qwen3CoderToolMiddleware } from "@ai-sdk-tool/parser";
 import { wrapLanguageModel } from "ai";
 import { ollama } from "../ollama";
+
+// TODO - find a way to persist this across files that feels clean
+const WORKDIR = process.cwd();
 
 // These each map to the actual name used in ollama
 // (see `ollama show` for your local model list)
@@ -30,8 +32,19 @@ const rawLogger: LanguageModelV3Middleware = {
 
 export const Qwen3Coder = wrapLanguageModel({
     model: ollama.chat(MODELS.qwen3Coder),
-    middleware: [qwen3CoderToolMiddleware, rawLogger]
+    middleware: [rawLogger]
 });
+
+// Potentially use these to overwrite the defaults in main agent loop (via Object.assign()):
+export const Qwen3CoderSettings = {
+        model: Qwen3Coder,
+        system: `You are a coding agent at ${WORKDIR}. Use bash to solve tasks. Act, don't explain.`,
+
+        // These values help prevent the model from getting stuck on bad output
+        // Might be able to get even better results by modifying seed and temp by attempt # somehow if needed
+        temperature: 0.2,
+        topP: 0.8
+};
 
 
 /**
